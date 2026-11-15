@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Mobile Desktop V15</title>
+<style>
+*{box-sizing:border-box}button,select,input{min-height:36px;touch-action:manipulation}body{margin:0;background:#edf0f4;color:#202124;font:14px Arial,sans-serif}
+header{background:#174a8b;color:#fff;padding:11px 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+button,select,input{padding:8px;border:1px solid #cbd2dc;border-radius:4px;background:#fff}
+nav,.ribbon{display:flex;gap:6px;flex-wrap:wrap;padding:9px;background:#fff;border-bottom:1px solid #d5dbe3}
+nav button.active{background:#e4eefc;color:#174a8b}.ribbon{background:#f8f9fb}.group{display:flex;gap:5px;align-items:center;padding-right:10px;border-right:1px solid #ddd;flex-wrap:wrap}
+.workspace{padding:20px 8px}.pages{display:flex;flex-direction:column;align-items:center;gap:22px}
+.page{background:#fff;width:794px;height:1123px;position:relative;box-shadow:0 2px 12px #0002;overflow:hidden;flex:none}
+.page-inner{position:absolute;inset:0;padding:114px 96px 90px;display:flex;flex-direction:column}
+.pagehead,.pagefoot{position:absolute;left:96px;right:96px;color:#555;font:11px Arial;min-height:18px;outline:none}
+.pagehead{top:38px}.pagefoot{bottom:35px;display:flex;justify-content:space-between}
+.footnotes{position:absolute;left:96px;right:96px;bottom:62px;max-height:115px;overflow:hidden;border-top:1px solid #888;padding-top:4px;font:9pt "Times New Roman",serif;color:#222}
+.footnotes:empty{display:none}.footnotes div{margin:2px 0}
+.editor{flex:1;min-height:0;outline:none;overflow:hidden;font:12pt "Times New Roman",serif;line-height:1.5}
+.editor p{text-align:justify;text-indent:1.25cm;margin:0 0 8pt}.editor h1,.editor h2,.editor h3{text-indent:0}
+.note,.status{background:#fff;padding:8px 12px;color:#555;font-size:12px}.status{position:sticky;bottom:0;border-top:1px solid #ddd}
+.page-size-letter{width:816px;height:1056px}.landscape{width:1123px;height:794px}.landscape.page-size-letter{width:1056px;height:816px}
+@media(max-width:820px){.workspace{padding:10px 4px}.pages{gap:12px}.page{width:calc(100vw - 12px);height:calc((100vw - 12px)*1.414);max-width:794px}.page-size-letter{height:calc((100vw - 12px)*1.294)}.landscape{width:calc(100vw - 12px);height:calc((100vw - 12px)*.707)}.page-inner{padding:10.2% 7% 8%}.pagehead,.pagefoot,.footnotes{left:7%;right:7%}.pagehead{top:3.5%}.pagefoot{bottom:3%}.footnotes{bottom:5.5%;max-height:12%}.editor{font-size:11pt}}
+@media print{body{background:white}header,nav,.ribbon,.note,.status{display:none!important}.workspace{padding:0}.pages{gap:0}.page{box-shadow:none;margin:0;break-after:page;page-break-after:always}}
+</style>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#1f4e79">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Word Mobile">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+</head>
+<body>
+<header><b>WORD DESKTOP MOBILE — V15</b><label>Dokumen <input id="docname" value="Dokumen Baru"></label><button onclick="saveDoc()">Simpan</button><button onclick="window.print()">Cetak / PDF</button></header>
+<nav id="tabs"><button class="active" data-panel="home">Beranda</button><button data-panel="insert">Sisipkan</button><button data-panel="layout">Tata Letak</button><button data-panel="view">Tampilan</button><button data-panel="file">Berkas</button></nav>
+<section class="ribbon" id="home">
+<div class="group"><select id="font"><option>Times New Roman</option><option>Arial</option><option>Calibri</option><option>Cambria</option></select><select id="size"><option>12</option><option>10</option><option>11</option><option>14</option><option>16</option><option>18</option></select></div>
+<div class="group"><button onclick="fmt('bold')"><b>B</b></button><button onclick="fmt('italic')"><i>I</i></button><button onclick="fmt('underline')"><u>U</u></button><button onclick="fmt('justifyLeft')">Kiri</button><button onclick="fmt('justifyCenter')">Tengah</button><button onclick="fmt('justifyRight')">Kanan</button><button onclick="fmt('justifyFull')">Rata kanan-kiri</button></div>
+<div class="group"><label>Spasi</label><select id="spacing"><option value="1">1,0</option><option value="1.15">1,15</option><option value="1.5" selected>1,5</option><option value="2">2,0</option></select><button onclick="fmt('insertUnorderedList')">• Daftar</button><button onclick="fmt('insertOrderedList')">1. Daftar</button><button onclick="fmt('undo')">Urungkan</button><button onclick="fmt('redo')">Ulangi</button></div>
+</section>
+<section class="ribbon" id="insert" hidden>
+<div class="group"><button onclick="heading(1)">Judul 1</button><button onclick="heading(2)">Judul 2</button><button onclick="heading(3)">Judul 3</button><button onclick="insertTable()">Tabel</button><button onclick="insertLink()">Tautan</button><button onclick="insertImage()">Gambar</button><button onclick="insertFootnote()">Catatan kaki</button><button onclick="addPage()">Tambah halaman</button><button onclick="insertPageBreak()">Pemisah halaman</button></div>
+<div class="group"><button onclick="formatTable()">Format tabel</button><button onclick="resizeSelectedImage()">Ukuran gambar</button></div></section>
+<section class="ribbon" id="layout" hidden>
+<div class="group"><label>Kertas</label><select id="paper" onchange="applyPageSetup()"><option value="A4">A4</option><option value="Letter">Letter</option></select><label>Orientasi</label><select id="orientation" onchange="applyPageSetup()"><option value="portrait">Potret</option><option value="landscape">Lanskap</option></select></div>
+<div class="group"><label>Margin (cm) atas/kanan/bawah/kiri</label><input id="mt" type="number" value="3" step=".1" style="width:58px"><input id="mr" type="number" value="3" step=".1" style="width:58px"><input id="mb" type="number" value="3" step=".1" style="width:58px"><input id="ml" type="number" value="4" step=".1" style="width:58px"><button onclick="applyMargins()">Terapkan</button></div>
+<div class="group"><button onclick="setHeaders()">Atur header/footer</button><label>Nomor</label><select id="numStyle" onchange="numberPages()"><option value="arabic">1, 2, 3</option><option value="roman">i, ii, iii</option><option value="ROMAN">I, II, III</option></select><label>Mulai</label><input id="numStart" type="number" value="1" min="1" style="width:55px" onchange="numberPages()"><button onclick="toggleFirstNumber()">Sembunyikan nomor halaman pertama</button></div>
+</section>
+<section class="ribbon" id="view" hidden><div class="group"><button onclick="reflow()">Alirkan teks otomatis</button><button onclick="zoom(0.9)">Perkecil</button><button onclick="zoom(1.1)">Perbesar</button><button onclick="showPageCount()">Hitung halaman</button></div></section>
+<section class="ribbon" id="file" hidden>
+<div class="group"><button onclick="document.getElementById('docxfile').click()">Buka DOCX</button><input id="docxfile" type="file" accept=".docx" hidden onchange="importDOCX(event)"><button onclick="exportDOCX()">Ekspor DOCX</button><button onclick="downloadHTML()">Unduh HTML</button><button onclick="newDoc()">Dokumen baru</button></div>
+<div class="group"><button onclick="backupJSON()">Cadangkan dokumen</button><button onclick="document.getElementById('backupfile').click()">Pulihkan cadangan</button><input id="backupfile" type="file" accept=".json,application/json" hidden onchange="restoreJSON(event)"><button onclick="runDiagnostics()">Periksa aplikasi</button></div></section>
+<div class="note">V15 adalah versi uji awal. Ditambahkan pencadangan/pemulihan dokumen dalam file JSON, pemeriksaan fitur dasar, penyimpanan lokal dengan penanganan kuota, serta penyaringan konten saat impor DOCX. Simpan salinan cadangan secara berkala; penyimpanan browser bukan pengganti backup eksternal.</div>
+<main class="workspace"><div class="pages" id="pages"></div></main>
+<div class="status" id="status">Siap · autosimpan lokal aktif.</div>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.js"></script>
+<script>
+const pagesEl=document.getElementById('pages');let headerText='',footerText='',hideFirst=false,zoomLevel=1,sources=[],paginationBusy=false;
+const defaults='<h1 style="text-align:center">Judul Dokumen</h1><p>Mulai mengetik di sini. Dokumen dibagi ke dalam halaman-halaman terpisah. Gunakan tab Tata Letak untuk mengatur ukuran kertas, orientasi, dan margin.</p>';
+function pageHTML(content='',notes=[]){return `<section class="page"><div class="pagehead" contenteditable="true">${esc(headerText)}</div><div class="page-inner"><div class="editor" contenteditable="true">${content}</div></div><div class="footnotes">${notes.map((n,i)=>`<div><sup>${i+1}</sup> ${esc(n)}</div>`).join('')}</div><div class="pagefoot"><span contenteditable="true">${esc(footerText)}</span><span class="page-number"></span></div></section>`}
+function addPage(content='',notes=[]){pagesEl.insertAdjacentHTML('beforeend',pageHTML(content,notes));wireEditors();numberPages()}
+function editors(){return [...document.querySelectorAll('.editor')]}
+function wireEditors(){editors().forEach(e=>{if(e.dataset.wired)return;e.dataset.wired='1';e.addEventListener('input',()=>{status.textContent='Perubahan terdeteksi…';clearTimeout(window.autosave);window.autosave=setTimeout(()=>{autoPaginate();saveDoc()},450)})})}
+function activeEditor(){let s=window.getSelection();let n=s&&s.anchorNode;return n?(n.nodeType===1?n:n.parentElement).closest('.editor'):editors()[0]}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));['home','insert','layout','view','file'].forEach(id=>document.getElementById(id).hidden=id!==b.dataset.panel)});
+function fmt(c){let e=activeEditor();e.focus();document.execCommand(c,false,null)}
+document.getElementById('font').onchange=e=>{activeEditor().focus();document.execCommand('fontName',false,e.target.value)};
+document.getElementById('size').onchange=e=>{activeEditor().focus();document.execCommand('fontSize',false,'3');document.querySelectorAll('font[size="3"]').forEach(x=>{x.removeAttribute('size');x.style.fontSize=e.target.value+'pt'})};
+document.getElementById('spacing').onchange=e=>editors().forEach(x=>x.style.lineHeight=e.target.value);
+function heading(n){let e=activeEditor();e.focus();document.execCommand('formatBlock',false,'H'+n)}
+function insertTable(){let r=+prompt('Jumlah baris',3),c=+prompt('Jumlah kolom',3);if(!r||!c)return;let h='<table border="1" style="border-collapse:collapse;width:100%">'+Array.from({length:Math.min(r,20)},()=>'<tr>'+Array.from({length:Math.min(c,10)},()=>'<td>&nbsp;</td>').join('')+'</tr>').join('')+'</table><p></p>';let e=activeEditor();e.focus();document.execCommand('insertHTML',false,h)}
+function insertLink(){let u=prompt('Alamat tautan');if(u){let e=activeEditor();e.focus();document.execCommand('createLink',false,u)}}
+function insertImage(){let i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{let r=new FileReader();r.onload=()=>{let e=activeEditor();e.focus();document.execCommand('insertImage',false,r.result)};r.readAsDataURL(i.files[0])};i.click()}
+function insertPageBreak(){let e=activeEditor(),idx=editors().indexOf(e);let next=editors()[idx+1];if(!next){addPage();next=editors()[idx+1]}next.focus();status.textContent='Pindah ke halaman berikutnya. Untuk pemisah tepat di posisi kursor, gunakan Enter beberapa kali atau rapikan blok secara manual.'}
+function toRoman(num){let vals=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']],out='';for(let [v,s] of vals){while(num>=v){out+=s;num-=v}}return out||'I'}
+function numberPages(){let style=document.getElementById('numStyle')?.value||'arabic',start=Math.max(1,+(document.getElementById('numStart')?.value||1));document.querySelectorAll('.page-number').forEach((n,i)=>{let v=start+i;n.textContent=(hideFirst&&i===0)?'':(style==='roman'?toRoman(v).toLowerCase():style==='ROMAN'?toRoman(v):String(v))});status.textContent='Jumlah halaman: '+editors().length}
+function showPageCount(){alert('Jumlah halaman saat ini: '+editors().length)}
+function toggleFirstNumber(){hideFirst=!hideFirst;numberPages()}
+function setHeaders(){let h=prompt('Teks header untuk semua halaman',headerText);if(h!==null)headerText=h;let f=prompt('Teks footer untuk semua halaman',footerText);if(f!==null)footerText=f;document.querySelectorAll('.pagehead').forEach(x=>x.textContent=headerText);document.querySelectorAll('.pagefoot span:first-child').forEach(x=>x.textContent=footerText);saveDoc()}
+function insertFootnote(){let e=activeEditor();if(!e)return;let all=editors(),idx=all.indexOf(e),note=prompt('Isi catatan kaki / sumber:');if(!note)return;e.focus();let id='fn'+Date.now();document.execCommand('insertHTML',false,`<sup data-footnote="${id}">[${document.querySelectorAll('[data-footnote]').length+1}]</sup>`);let page=e.closest('.page'),box=page.querySelector('.footnotes');let item=document.createElement('div');item.innerHTML=`<sup>${box.children.length+1}</sup> ${esc(note)}`;box.appendChild(item);saveDoc();status.textContent='Catatan kaki ditambahkan pada halaman ini.'}
+function formatTable(){let e=activeEditor(),sel=window.getSelection(),node=sel&&sel.anchorNode,table=node?(node.nodeType===1?node:node.parentElement).closest('table'):null;if(!table){alert('Letakkan kursor di dalam tabel terlebih dahulu.');return}let border=prompt('Ketebalan garis tabel (px)', '1');let width=prompt('Lebar tabel (%)','100');table.style.borderCollapse='collapse';table.style.width=Math.max(20,Math.min(100,+width||100))+'%';table.querySelectorAll('td,th').forEach(c=>{c.style.border=(Math.max(0,Math.min(5,+border||1)))+'px solid #333';c.style.padding='6px';c.style.minWidth='35px'});saveDoc()}
+function resizeSelectedImage(){let sel=window.getSelection(),node=sel&&sel.anchorNode,img=node?(node.nodeType===1?node:node.parentElement).closest('img'):null;if(!img){alert('Pilih gambar terlebih dahulu dengan mengetuknya.');return}let w=prompt('Lebar gambar dalam persen (%)',String(Math.round(img.getBoundingClientRect().width/img.closest('.editor').clientWidth*100)));if(w!==null){img.style.width=Math.max(10,Math.min(100,+w||100))+'%';img.style.height='auto';saveDoc()}}
+function applyMargins(){let top=+mt.value*37.8,right=+mr.value*37.8,bottom=+mb.value*37.8,left=+ml.value*37.8;document.querySelectorAll('.page-inner').forEach(x=>x.style.padding=`${top}px ${right}px ${bottom}px ${left}px`);document.querySelectorAll('.pagehead,.pagefoot').forEach(x=>{x.style.left=left+'px';x.style.right=right+'px'})}
+function applyPageSetup(){document.querySelectorAll('.page').forEach(p=>{p.classList.toggle('landscape',orientation.value==='landscape');p.classList.toggle('page-size-letter',paper.value==='Letter')})}
+function zoom(f){zoomLevel=Math.max(.55,Math.min(1.2,zoomLevel*f));document.querySelectorAll('.page').forEach(p=>p.style.zoom=zoomLevel)}
+function reflow(){autoPaginate(true);status.textContent='Aliran halaman diperiksa. Periksa kembali paragraf panjang, tabel, dan gambar.'}
+function pageOverflows(e){return e.scrollHeight>e.clientHeight+3}
+function makeNextPage(index){let es=editors();if(!es[index+1])addPage();return editors()[index+1]}
+function autoPaginate(showStatus=false){
+ if(paginationBusy)return;
+ paginationBusy=true;
+ try{
+  let es=editors();
+  for(let i=0;i<es.length;i++){
+   let current=es[i],guard=0;
+   while(pageOverflows(current)&&current.children.length>1&&guard++<100){
+    let next=makeNextPage(i);
+    let last=current.lastElementChild;
+    if(!last)break;
+    let move=[last];
+    if(/^H[1-6]$/.test(last.tagName)&&last.previousElementSibling)move.unshift(last.previousElementSibling);
+    move.reverse().forEach(node=>next.insertBefore(node,next.firstChild));
+   }
+   if(pageOverflows(current)&&current.children.length<=1){
+    status.textContent='Ada satu paragraf/blok yang terlalu panjang untuk satu halaman. Pecah paragraf atau kecilkan gambar/tabel agar muat.';
+   }
+  }
+  numberPages();
+  if(showStatus && !editors().some(pageOverflows))status.textContent='Halaman berhasil dirapikan otomatis.';
+ }finally{paginationBusy=false}
+}
+function collectDoc(){return {version:15,name:docname.value,pages:editors().map(e=>e.innerHTML),notes:[...document.querySelectorAll('.footnotes')].map(x=>x.innerHTML),headerText,footerText,hideFirst,numStyle:numStyle.value,numStart:numStart.value,paper:paper.value,orientation:orientation.value,margins:[mt.value,mr.value,mb.value,ml.value],sources,updatedAt:new Date().toISOString()}}
+function saveDoc(){try{localStorage.setItem('wordV15',JSON.stringify(collectDoc()));status.textContent='Tersimpan di browser ini · '+new Date().toLocaleTimeString('id-ID')}catch(err){status.textContent='Penyimpanan lokal gagal (kemungkinan ruang penuh). Unduh cadangan JSON.';console.error(err)}}
+function backupJSON(){let data=JSON.stringify(collectDoc(),null,2);download(data,(docname.value||'dokumen').replace(/[\\/:*?"<>|]/g,'_')+'_cadangan.json','application/json');status.textContent='File cadangan JSON dibuat.'}
+function restoreJSON(ev){let f=ev.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d||!Array.isArray(d.pages))throw new Error('Format cadangan tidak dikenali');if(!confirm('Pulihkan cadangan? Isi dokumen yang sedang terbuka akan diganti.'))return;applyBackup(d);saveDoc();status.textContent='Cadangan berhasil dipulihkan.'}catch(e){alert('Tidak dapat memulihkan cadangan: '+e.message)}finally{ev.target.value=''}};r.readAsText(f)}
+function applyBackup(d){docname.value=d.name||'Dokumen Pulihan';headerText=d.headerText||'';footerText=d.footerText||'';hideFirst=!!d.hideFirst;paper.value=d.paper||'A4';orientation.value=d.orientation||'portrait';if(d.margins)[mt.value,mr.value,mb.value,ml.value]=d.margins;numStyle.value=d.numStyle||'arabic';numStart.value=d.numStart||1;pagesEl.innerHTML='';(d.pages.length?d.pages:['<p></p>']).forEach((c,i)=>{addPage(c);if(d.notes&&d.notes[i])pagesEl.lastElementChild.querySelector('.footnotes').innerHTML=d.notes[i]});applyMargins();applyPageSetup();numberPages();autoPaginate()}
+function runDiagnostics(){let checks=[['Editor tersedia',editors().length>0],['Contenteditable aktif',editors().every(e=>e.isContentEditable)],['Penyimpanan browser',(()=>{try{localStorage.setItem('_v15test','1');localStorage.removeItem('_v15test');return true}catch(e){return false}})()],['Pustaka impor DOCX',!!window.mammoth],['Pustaka ekspor DOCX',!!window.htmlDocx],['File backup JSON',typeof FileReader!=='undefined']];alert('PEMERIKSAAN APLIKASI\\n\\n'+checks.map(([n,v])=>(v?'✓ ':'✗ ')+n).join('\\n')+'\\n\\nPustaka DOCX membutuhkan internet. Hasil pemeriksaan bukan jaminan semua dokumen kompatibel.')}
+window.addEventListener('beforeunload',()=>{try{localStorage.setItem('wordV15',JSON.stringify(collectDoc()))}catch(e){}});
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function download(data,name,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+function downloadHTML(){let body=editors().map(e=>'<section style="page-break-after:always">'+e.innerHTML+'</section>').join('');download('<!doctype html><meta charset="utf-8"><style>body{font:12pt Times New Roman;line-height:'+spacing.value+';margin:3cm}</style>'+body,(docname.value||'dokumen')+'.html','text/html')}
+function newDoc(){if(confirm('Mulai dokumen baru?')){pagesEl.innerHTML='';addPage(defaults);saveDoc()}}
+async function importDOCX(ev){
+ let f=ev.target.files[0];if(!f)return;
+ if(!window.mammoth){alert('Pustaka impor belum termuat. Periksa koneksi internet.');ev.target.value='';return}
+ status.textContent='Membaca DOCX…';
+ try{
+  let opts={arrayBuffer:await f.arrayBuffer(),convertImage:mammoth.images.inline((image)=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data})))};
+  let res=await mammoth.convertToHtml(opts,{styleMap:['p[style-name="Title"] => h1:fresh','p[style-name="Heading 1"] => h1:fresh','p[style-name="Heading 2"] => h2:fresh','p[style-name="Heading 3"] => h3:fresh','u => u']});
+  pagesEl.innerHTML='';addPage(sanitizeImportedHTML(res.value||'<p></p>'));docname.value=f.name.replace(/\.docx$/i,'');
+  autoPaginate();saveDoc();
+  let msgs=(res.messages||[]).length;
+  alert('DOCX berhasil diimpor. '+(msgs?msgs+' catatan konversi ditemukan. ':'')+'Periksa kembali tabel, gambar, daftar, catatan kaki, dan tata letak.');
+ }catch(e){alert('Gagal membuka DOCX: '+e.message)}
+ finally{ev.target.value='';status.textContent='Impor DOCX selesai.'}
+}
+function sanitizeImportedHTML(html){let t=document.createElement('template');t.innerHTML=html; t.content.querySelectorAll('script,style,iframe,object,embed,form,video,audio').forEach(x=>x.remove());t.content.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{let k=a.name.toLowerCase(),v=a.value.trim().toLowerCase();if(k.startsWith('on')||((k==='href'||k==='src')&&(v.startsWith('javascript:')||v.startsWith('vbscript:'))))el.removeAttribute(a.name)});});return t.innerHTML}
+function exportDOCX(){
+ if(!window.htmlDocx){alert('Pustaka ekspor belum termuat. Periksa koneksi internet.');return}
+ const cm=id=>Math.max(0,+document.getElementById(id).value||0);
+ const twips=v=>Math.round(v*567);
+ const m={top:twips(cm('mt')),right:twips(cm('mr')),bottom:twips(cm('mb')),left:twips(cm('ml'))};
+ const size=paper.value==='Letter'?'8.5in 11in':'8.27in 11.69in';
+ const pages=[...document.querySelectorAll('.page')];
+ const htmlPages=pages.map((p,i)=>{
+  const head=p.querySelector('.pagehead')?.innerHTML||'';
+  const foot=p.querySelector('.pagefoot')?.innerHTML||'';
+  const notes=p.querySelector('.footnotes')?.innerHTML||'';
+  const content=p.querySelector('.editor')?.innerHTML||'';
+  return `<section class="doc-page"><div class="doc-head">${head}</div><main>${content}</main>${notes?`<div class="doc-notes">${notes}</div>`:''}<div class="doc-foot">${foot}</div></section>`;
+ }).join('');
+ const html=`<!doctype html><html><head><meta charset="utf-8"><style>
+ @page{size:${size} ${orientation.value};margin:${cm('mt')}cm ${cm('mr')}cm ${cm('mb')}cm ${cm('ml')}cm}
+ body{font-family:"Times New Roman",serif;font-size:12pt;line-height:${spacing.value};color:#000}
+ p{text-align:justify;margin:0 0 8pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #333;padding:5px}
+ img{max-width:100%;height:auto}.doc-page{page-break-after:always;position:relative;min-height:1px}
+ .doc-head{font-size:9pt;margin-bottom:12pt}.doc-foot{font-size:9pt;margin-top:12pt}
+ .doc-notes{border-top:1px solid #777;font-size:9pt;margin-top:12pt;padding-top:4pt}
+ h1,h2,h3{page-break-after:avoid}
+ </style></head><body>${htmlPages}
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (err) {
+      console.warn('Service worker belum aktif:', err);
+    });
+  });
+}
+</script>
+
+</body></html>`;
+ try{
+  const blob=htmlDocx.asBlob(html,{orientation:orientation.value,margins:m});
+  download(blob,(docname.value||'dokumen').replace(/[\\/:*?"<>|]/g,'_')+'.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+  status.textContent='DOCX berhasil dibuat. Buka di Microsoft Word dan periksa tata letaknya.';
+ }catch(e){alert('Ekspor gagal: '+e.message)}
+}
+function restore(){try{let d=JSON.parse(localStorage.getItem('wordV15')||localStorage.getItem('wordV13')||localStorage.getItem('wordV12')||localStorage.getItem('wordV11')||'null');if(!d){addPage(defaults);return}docname.value=d.name||'Dokumen Baru';headerText=d.headerText||'';footerText=d.footerText||'';hideFirst=!!d.hideFirst;paper.value=d.paper||'A4';orientation.value=d.orientation||'portrait';if(d.margins)[mt.value,mr.value,mb.value,ml.value]=d.margins;pagesEl.innerHTML='';(d.pages&&d.pages.length?d.pages:[defaults]).forEach((c,i)=>{let pg=addPage(c);if(d.notes&&d.notes[i]){let box=pagesEl.lastElementChild.querySelector('.footnotes');box.innerHTML=d.notes[i]}});if(d.numStyle)numStyle.value=d.numStyle;if(d.numStart)numStart.value=d.numStart;applyMargins();applyPageSetup();numberPages()}catch(e){addPage(defaults)}}
+restore();setTimeout(()=>autoPaginate(),250);
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveDoc();}});
+</script></body></html>
